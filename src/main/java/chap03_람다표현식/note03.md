@@ -12,4 +12,20 @@
 (parameter) -> { statements; }
 ```
 
-## 람다 활용: 실행 어라운드 패턴
+### 활용: 실행 어라운드 패턴
+예제를 보자.
+
+## 함수형 인터페이스
+자바 8의 대표 함수형 인터페이스
+
+| 인터페이스 | 디스크립터 | 기본형 특화 |
+| --- | --- | --- |
+| Predicate\<T\> | T -> boolean | Int, Long, Double |
+| Consumer\<T\> | T -> void | Int, Long, Double |
+| Function\<T, R\> | T -> R | Int, Long, Double |
+| Supplier\<T\> | () -> T | Boolean, Int, Long, Double |
+| UnaryOperator\<T\> | T -> T | Int, Long, Double |
+| BinaryOperator\<T\> | (T, T) -> T | Int, Long, Double |
+| BiPredicate\<L, R\> | (L, R) -> boolean | |
+| BiConsumer\<T, U\> | (T, U) -> void | Int, Long, Double |
+| BiFunction\<T, U, R\> | (T, U) -> R | Int, Long, Double |
