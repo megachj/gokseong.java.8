@@ -1,13 +1,13 @@
 package chap03_람다표현식;
 
+import chap03_람다표현식.classes.BufferedReaderProcessor;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class Main03 {
-    public static void main(String[] args) throws Exception {
-        System.out.println("Main03 start");
-
+public class Main03_lambda {
+    public static void main(String[] args) throws IOException {
         String filePath = System.getProperty("user.dir") + "\\gokseong.java.8\\data\\" + "data.txt";
 
         // 람다 전달, 즉 함수형 인터페이스의 인스턴스를 전달
