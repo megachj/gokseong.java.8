@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class Main03_expand {
+public class Main03_extensions {
     public static void main(String[] args) {
         List<Apple> inventory = Arrays.asList(new Apple(100, "Korea"), new Apple(50, "Japan"), new Apple(100, "America"));
 
