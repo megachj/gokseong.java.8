@@ -1,4 +1,4 @@
-package chap11_CompletableFuture.classes;
+package chap11_CompletableFuture;
 
 import java.util.concurrent.*;
 

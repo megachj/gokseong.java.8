@@ -1,5 +1,6 @@
 package chap11_CompletableFuture.classes;
 
+import chap11_CompletableFuture.Main11;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -42,54 +43,6 @@ public class Shop {
                         return t;
                     }
                 });
-    }
-
-    public static void main(String[] args) {
-        long start, invocationTime, duration;
-        // 예제 1
-        System.out.println("-------------------- 예제 1 --------------------");
-        Shop shopExample1 = new Shop("shopExample1");
-        start = System.nanoTime();
-        Future<Double> futurePrice = shopExample1.getPriceAsync("my favorite product");
-        invocationTime = ((System.nanoTime() - start) / 1_000_000);
-        System.out.println("Invocation returned after " + invocationTime + " ms");
-
-        // 제품 가격 계산하는 동안, 다른 작업 수행
-        doSomethingElse();
-        try {
-            double price = futurePrice.get();
-            System.out.printf("Price is %.2f%n",price);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        long retrievalTime = ((System.nanoTime() - start) / 1_000_000);
-        System.out.println("Price returned after " + retrievalTime + " ms");
-        System.out.println();
-
-        // 예제 2: 비블록 코드 만들기
-        Shop shopExample2 = new Shop("shopExample2", 20);
-        System.out.println("-------------------- 예제 2 --------------------");
-
-        /*
-        System.out.println("--- Sync Serial Stream ---");
-        start = System.nanoTime();
-        System.out.println(shopExample2.findPricesSyncSerial("myPhone27S"));
-        long duration = (System.nanoTime() - start) / 1_000_000;
-        System.out.println("Done in " + duration + " ms");
-        */
-
-        System.out.println("--- Sync Parallel Stream ---");
-        start = System.nanoTime();
-        System.out.println(shopExample2.findPricesSyncParallel("myPhone27S"));
-        duration = (System.nanoTime() - start) / 1_000_000;
-        System.out.println("Done in " + duration + " ms");
-
-        System.out.println("--- Sync CompletableFuture ---");
-        start = System.nanoTime();
-        System.out.println(shopExample2.findPricesSyncCompletableFuture("myPhone27S"));
-        duration = (System.nanoTime() - start) / 1_000_000;
-        System.out.println("Done in " + duration + " ms");
     }
 
     public double getPrice(String product) {
@@ -144,25 +97,37 @@ public class Shop {
                 .collect(Collectors.toList());
     }
 
-    private String getMessage(String shopName, double price, Discount.Code code) {
+    public List<String> findDiscountedPricesSerial(String product) {
+        return relatedShops.stream()
+                .map(shop -> shop.getPriceAppliedDiscount(product)) // delay 1sec
+                .map(Quote::parse)
+                .map(Discount::applyDiscount) // delay 1sec
+                .collect(Collectors.toList());
+    }
+
+    public List<String> findDiscountedPricesCompletableFuture(String product) {
+        List<CompletableFuture<String>> priceFutures =
+                relatedShops.stream()
+                .map(shop -> CompletableFuture.supplyAsync(() -> shop.getPriceAppliedDiscount(product), executor)) // CompletableFuture<String> 생성
+                .map(future -> future.thenApply(Quote::parse)) //
+                .map(future -> future.thenCompose(quote -> CompletableFuture.supplyAsync(
+                        () -> Discount.applyDiscount(quote), executor)))
+                .collect(Collectors.toList());
+
+        return priceFutures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+    }
+
+    private String getPriceAppliedDiscount(String product) {
+        double price = calculatePrice(product);
+        Discount.Code code = Discount.Code.values()[new Random().nextInt(Discount.Code.values().length)];
         return String.format("%s:%.2f:%s", shopName, price, code);
     }
 
     private double calculatePrice(String product) {
-        delay();
+        Main11.delay();
         Random random = new Random();
         return random.nextDouble() * product.charAt(0) + product.charAt(1);
-    }
-
-    private static void doSomethingElse() {
-        System.out.println("doSomethingElse ThreadName: " + Thread.currentThread().getName());
-    }
-
-    private static void delay() {
-        try {
-            Thread.sleep(1000L);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

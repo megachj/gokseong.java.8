@@ -77,3 +77,54 @@ CompletableFuture 방식이 좀 더 성능을 최적화시킬 수 있다.
 사용하면 성능을 개선시킬 수 있다.  
 특히 스트림의 게으른 특성 때문에 스트림에서 I/O를 실제로 언제 처리할지 예측이 어려운 문제도 있다.
 
+## 클래스, 인터페이스 상세
+### CompletableFuture
+CompletableFuture\<T\> 는 Future\<T\> 와 CompletionStage\<T\> 인터페이스를 구현하고 있다.
+```java
+// @since 1.8
+public class CompletableFuture<T> implements Future<T>, CompletionStage<T> {
+    // ---------- static 메서드 ----------
+    public static CompletableFuture<Void> allOf(CompletableFuture<?>... cfs);
+}
+```
+
+### Future
+Future 는 caller 스레드가 async 한 작업을 Executor 스레드에 위임하고, 결과값을 참조할 수 있는 인터페이스이다.
+```java
+// @since 1.5
+public interface Future<V> {
+    // task 를 취소하는 메소드
+    // mayInterruptIfRunning 이 true 라면, 실행중인 상태일 때 인터럽트 가능
+    // 이미 task 가 완료거나 다른 이유땜에 취소 실패하면 false
+    boolean cancel(boolean mayInterruptIfRunning);
+    
+    // task 가 정상적으로 완료되기 전에 취소됐다면 true
+    boolean isCancelled();
+    
+    // task 가 완료됐다면 true
+    boolean isDone();
+    
+    // 결과 조회 메서드, 완료될 때까지 wait
+    V get() throws InterruptedException, ExecutionException;
+    
+    // 결과 조회 메서드, 설정한 타임 아웃 시간까지 wait
+    V get(long timeout, TimeUnit unit) 
+        throws InterruptedException, ExecutionException, TimeoutException;
+}
+``` 
+
+### CompletionStage
+CompletionStage 는 `작업의 파이프라인을 구성`할 수 있게하는 인터페이스이다.
+파이프라인에서 단계의 의존성 관계를 나타낼 수 있고, 각 단계에서 발생하는 에러를 
+관리하고 전달할 수 있다.
+```java
+// @since 1.8
+public interface CompletionStage<T> {
+    
+     
+}
+```
+
+### Executor
+
+### ExecutorService
